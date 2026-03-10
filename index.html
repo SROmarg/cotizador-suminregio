@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080808">
+<title>Suminregio Industrial — Plataforma</title>
+<link rel="stylesheet" href="css/design-system.css">
+<style>
+main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+.hero { text-align: center; margin-bottom: 48px; }
+.hero-title { font-family: var(--fc); font-size: clamp(28px,5vw,42px); font-weight: 800; color: var(--w); letter-spacing: 0.5px; line-height: 1.1; }
+.hero-title span { color: var(--y); }
+.hero-sub { font-size: 14px; color: var(--tx2); margin-top: 10px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+.modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.mod { background: var(--dk2); border: 1px solid var(--br); border-radius: var(--radius-lg); padding: 28px 24px; cursor: pointer; text-decoration: none; color: inherit; transition: all 0.2s; position: relative; overflow: hidden; }
+.mod:hover { border-color: var(--y); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,197,24,0.08); }
+.mod-icon { font-size: 32px; margin-bottom: 12px; }
+.mod-title { font-family: var(--fc); font-size: 20px; font-weight: 800; color: var(--w); letter-spacing: 0.3px; }
+.mod-desc { font-size: 12px; color: var(--tx2); margin-top: 6px; line-height: 1.5; }
+.mod-tag { position: absolute; top: 16px; right: 16px; font-family: var(--fc); font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.8px; text-transform: uppercase; }
+.mod-tag.live { background: var(--gn-bg); color: var(--gn); }
+.mod-tag.soon { background: var(--y-bg); color: var(--y); }
+.mod-arrow { position: absolute; bottom: 20px; right: 20px; font-size: 18px; color: var(--mu); transition: all 0.2s; }
+.mod:hover .mod-arrow { color: var(--y); transform: translateX(4px); }
+
+.section-title { font-family: var(--fc); font-size: 13px; font-weight: 700; color: var(--mu); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; margin-top: 40px; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 16px; }
+.stat { background: var(--dk2); border: 1px solid var(--br); border-radius: var(--radius); padding: 16px; text-align: center; }
+.stat-val { font-family: var(--fc); font-size: 24px; font-weight: 800; color: var(--y); }
+.stat-label { font-size: 10px; color: var(--mu); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+@media (max-width: 600px) {
+  main { padding: 24px 14px; }
+  .modules { grid-template-columns: 1fr; }
+  .hero { margin-bottom: 32px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="platform-nav">
+  <a href="index.html" class="pn-logo">SR</a>
+  <a href="index.html" class="pn-brand">SUMINREGIO <span>INDUSTRIAL</span></a>
+  <div class="pn-links">
+    <a href="index.html" class="pn-link active">Inicio</a>
+    <a href="cotizador.html" class="pn-link">Cotizador</a>
+    <a href="levantamiento.html" class="pn-link">Levantamiento</a>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="hero-title">PLATAFORMA <span>SUMINREGIO</span></div>
+    <div class="hero-sub">Herramientas industriales para tu equipo de ventas</div>
+  </div>
+
+  <div class="modules">
+    <a href="cotizador.html" class="mod">
+      <div class="mod-tag live">Activo</div>
+      <div class="mod-icon">📋</div>
+      <div class="mod-title">COTIZADOR</div>
+      <div class="mod-desc">Busca entre 68,000+ productos por nombre, clave o descripción técnica. Genera cotizaciones con precios actualizados y cross-reference entre marcas.</div>
+      <div class="mod-arrow">→</div>
+    </a>
+
+    <a href="levantamiento.html" class="mod">
+      <div class="mod-tag live">Activo</div>
+      <div class="mod-icon">📷</div>
+      <div class="mod-title">LEVANTAMIENTO</div>
+      <div class="mod-desc">Toma fotos de formatos de mangueras. La IA extrae las specs automáticamente y sugiere productos del catálogo. Envía directo al cotizador.</div>
+      <div class="mod-arrow">→</div>
+    </a>
+
+    <a href="#" class="mod" style="opacity:0.5;cursor:default;" onclick="return false;">
+      <div class="mod-tag soon">Próximamente</div>
+      <div class="mod-icon">🤖</div>
+      <div class="mod-title">ASISTENTE IA</div>
+      <div class="mod-desc">Tu Claude-Suminregio conectado a tus bases de datos. Pregunta sobre ventas, inventario, comisiones, clientes y productos en lenguaje natural.</div>
+      <div class="mod-arrow">→</div>
+    </a>
+  </div>
+
+  <div class="section-title">Plataforma</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">68,801</div><div class="stat-label">Productos</div></div>
+    <div class="stat"><div class="stat-val">9,797</div><div class="stat-label">Con descripción Shopify</div></div>
+    <div class="stat"><div class="stat-val">6</div><div class="stat-label">Tipos SAE</div></div>
+    <div class="stat"><div class="stat-val">10</div><div class="stat-label">Tipos de precio</div></div>
+  </div>
+</main>
+
+<footer class="platform-footer">
+  Suminregio Industrial — Plataforma de herramientas internas
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Ventas — SUMINREGIO</title>
+<link rel="stylesheet" href="css/design-system.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    font-size: 12px;
+  }
+
+  .topbar {
+    background: #1F3864;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+  }
+
+  .topbar-title {
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .topbar-sub {
+    color: #a8c4e8;
+    font-size: 10px;
+    margin-top: 2px;
+  }
+
+  .topbar-filters {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .fbox {
+    background: white;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 11px;
+    color: #1F3864;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .fbox select {
+    border: none;
+    outline: none;
+    font-size: 11px;
+    color: #1F3864;
+    font-weight: 600;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .logo {
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+    border-left: 3px solid #2E75B6;
+    padding-left: 10px;
+    line-height: 1.3;
+    text-align: right;
+  }
+
+  .main {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* KPI CARDS */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+
+  .kcard {
+    background: white;
+    border-radius: 6px;
+    padding: 12px 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border-top: 3px solid #2E75B6;
+  }
+
+  .kcard.g { border-top-color: #1E6B3C; }
+  .kcard.o { border-top-color: #E8A000; }
+  .kcard.r { border-top-color: #C00000; }
+
+  .klbl {
+    font-size: 9.5px;
+    color: #777;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .kval {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1F3864;
+    margin: 5px 0 3px;
+    line-height: 1;
+  }
+
+  .kval.g { color: #1E6B3C; }
+  .kval.o { color: #E8A000; }
+  .kval.r { color: #C00000; }
+
+  .ksub {
+    font-size: 9.5px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 9.5px;
+    font-weight: 700;
+  }
+
+  .bg-g { background: #E2EFDA; color: #1E6B3C; }
+  .bg-o { background: #FFF2CC; color: #B07800; }
+  .bg-r { background: #FCE4D6; color: #C00000; }
+
+  /* CARD */
+  .card {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    padding: 12px 14px;
+  }
+
+  .ctitle {
+    font-size: 10px;
+    font-weight: 700;
+    color: #1F3864;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #D5E8F0;
+  }
+
+  /* ROW 2 */
+  .row2 {
+    display: grid;
+    grid-template-columns: 220px 1fr 220px;
+    gap: 10px;
+  }
+
+  /* Gauge */
+  .gauge-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gauge-svg {
+    width: 160px;
+    height: 100px;
+  }
+
+  .gauge-pct {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1E6B3C;
+    margin-top: 3px;
+  }
+
+  .gauge-sub {
+    font-size: 9px;
+    color: #888;
+    text-align: center;
+  }
+
+  /* Progress bars */
+  .pitem {
+    margin-bottom: 12px;
+  }
+
+  .phead {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9.5px;
+    color: #555;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .pbar {
+    height: 10px;
+    background: #eee;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .pfill {
+    height: 100%;
+    border-radius: 5px;
+  }
+
+  .pfg { background: linear-gradient(90deg,#1E6B3C,#27ae60); }
+  .pfo { background: linear-gradient(90deg,#E8A000,#f5c400); }
+  .pfb { background: linear-gradient(90deg,#1F3864,#2E75B6); }
+
+  .snote {
+    font-size: 9px;
+    color: #bbb;
+    margin-top: 2px;
+    font-style: italic;
+  }
+
+  /* ROW 3 */
+  .row3 {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 10px;
+  }
+
+  /* SVG chart */
+  .svg-chart {
+    width: 100%;
+    height: 160px;
+  }
+
+  /* Summary blocks */
+  .srow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .sitem {
+    background: #f7f9fc;
+    border-radius: 5px;
+    padding: 9px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+  }
+
+  .sname {
+    font-size: 9px;
+    color: #999;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .sval {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1F3864;
+  }
+
+  /* ROW 4 */
+  .row4 {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 10px;
+  }
+
+  /* Tables */
+  .ctable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+  }
+
+  .ctable th {
+    background: #1F3864;
+    color: white;
+    padding: 6px 8px;
+    font-size: 9.5px;
+    text-align: left;
+  }
+
+  .ctable td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ctable tr:nth-child(even) td {
+    background: #f7f9fc;
+  }
+
+  .cbar {
+    height: 6px;
+    background: #1E6B3C;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  /* Ritmo */
+  .ritem {
+    border-radius: 5px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #D5E8F0;
+  }
+
+  .ritem.g { background: #E2EFDA; }
+  .ritem.o { background: #FFF2CC; }
+
+  .rlbl {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #444;
+  }
+
+  .rval {
+    font-size: 15px;
+    font-weight: 800;
+    color: #1F3864;
+  }
+
+  .footer {
+    font-size: 9.5px;
+    color: #ccc;
+    text-align: right;
+    padding: 8px 14px;
+  }
+
+  .fb {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Utilities */
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+  }
+
+  @media (max-width: 1400px) {
+    .kpi-row { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  @media (max-width: 1024px) {
+    .kpi-row { grid-template-columns: repeat(3, 1fr); }
+    .row2 { grid-template-columns: 1fr; }
+    .row3 { grid-template-columns: 1fr; }
+    .row4 { grid-template-columns: 1fr; }
+  }
+
+  /* ===== DARK THEME OVERRIDES ===== */
+  body { background: var(--bk); color: var(--tx); font-family: var(--fn); }
+  .topbar { background: var(--dk); border-bottom: 1px solid var(--br); box-shadow: 0 1px 0 var(--y), 0 2px 20px rgba(0,0,0,0.5); }
+  .topbar-title { color: var(--w); font-family: var(--fc); }
+  .topbar-sub { color: var(--tx2); }
+  .fbox { background: var(--dk2); color: var(--tx); border: 1px solid var(--br); }
+  .fbox select { color: var(--tx); background: var(--dk2); }
+  .logo { color: var(--y); border-left-color: var(--y); }
+  .logo span { color: var(--tx2) !important; }
+  .card { background: var(--dk2); border: 1px solid var(--br); box-shadow: none; }
+  .ctitle { color: var(--y); border-bottom-color: var(--br); }
+  .kcard { background: var(--dk2); border: 1px solid var(--br); box-shadow: none; border-top: 3px solid var(--y); }
+  .kcard.g { border-top-color: var(--gn); }
+  .kcard.o { border-top-color: var(--warn); }
+  .kcard.r { border-top-color: var(--rd); }
+  .klbl { color: var(--tx2); }
+  .kval { color: var(--y); }
+  .kval.g { color: var(--gn); }
+  .kval.o { color: var(--warn); }
+  .kval.r { color: var(--rd); }
+  .ksub { color: var(--mu); }
+  .gauge-pct { color: var(--gn); }
+  .gauge-sub { color: var(--mu); }
+  .phead { color: var(--tx2); }
+  .pbar { background: var(--br); }
+  .snote { color: var(--mu); }
+  .sitem { background: var(--dk3); border-color: var(--br); }
+  .sname { color: var(--tx2); }
+  .sval { color: var(--y); }
+  .ctable th { background: var(--dk3); color: var(--y); border-bottom: 1px solid var(--br); }
+  .ctable td { border-bottom-color: var(--br); color: var(--tx); }
+  .ctable tr:nth-child(even) td { background: var(--dk3); }
+  .ritem { background: var(--dk3); border: 1px solid var(--br); }
+  .ritem.g { background: var(--gn-bg); border-color: rgba(34,197,94,0.2); }
+  .ritem.o { background: var(--warn-bg); border-color: rgba(245,158,11,0.2); }
+  .rlbl { color: var(--tx2); }
+  .rval { color: var(--w); }
+  .footer { color: var(--mu); }
+  .loading { color: var(--mu); }
+  .badge { font-weight: 700; }
+  .bg-g { background: var(--gn-bg); color: var(--gn); }
+  .bg-o { background: var(--warn-bg); color: var(--warn); }
+  .bg-r { background: var(--rd-bg); color: var(--rd); }
+</style>
+</head>
+<body>
+
+<!-- PLATFORM NAV -->
+<nav class="platform-nav">
+  <a href="index.html" class="pn-logo">SR</a>
+  <a href="index.html" class="pn-brand">SUMINREGIO <span>INDUSTRIAL</span></a>
+  <div class="pn-links">
+    <a href="index.html" class="pn-link">Inicio</a>
+    <a href="cotizador.html" class="pn-link">Cotizador</a>
+    <a href="levantamiento.html" class="pn-link">Levantamiento</a>
+  </div>
+</nav>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div>
+      <div class="topbar-title">📊 Dashboard de Ventas</div>
+      <div class="topbar-sub">Última actualización: <span id="current-date"></span></div>
+    </div>
+  </div>
+
+  <div class="topbar-filters">
+    <div class="fbox">
+      📅 Mes
+      <select id="month-select" onchange="updateDashboard()"></select>
+    </div>
+    <div class="fbox">
+      🔍 Vendedor
+      <select id="vendedor-select" onchange="updateDashboard()">
+        <option value="">Todos</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="logo">SUMINREGIO<br><span style="font-size:9px;font-weight:400;color:#a8c4e8">INDUSTRIAL</span></div>
+</div>
+
+<div class="main">
+
+  <!-- ── ROW 1: KPIs ── -->
+  <div class="kpi-row" id="kpi-container">
+    <div class="loading">Cargando datos...</div>
+  </div>
+
+  <!-- ── ROW 2: GAUGE + PROGRESO + RESUMEN ── -->
+  <div class="row2" id="row2-container">
+    <div class="loading">Cargando...</div>
+  </div>
+
+  <!-- ── ROW 3: CLIENTES + RESUMEN TRIMESTRAL ── -->
+  <div class="row3" id="row3-container">
+    <div class="loading">Cargando...</div>
+  </div>
+
+  <!-- ── ROW 4: TOP VENDEDORES ── -->
+  <div class="row4" id="row4-container">
+    <div class="loading">Cargando...</div>
+  </div>
+
+</div>
+
+<div class="footer">SUMINREGIO INDUSTRIAL · Dashboard de Ventas · Datos dinámicos en tiempo real</div>
+
+<script src="dashboard_data.js"></script>
+
+<script>
+// ============================================
+// DASHBOARD INITIALIZATION & LOGIC
+// ============================================
+
+let currentData = null;
+let currentMonthKey = null;
+let filteredVendedor = '';
+
+// Initialize dashboard
+function initDashboard() {
+  populateMonthSelect();
+  populateVendedorSelect();
+  updateCurrentDate();
+
+  // Set default to most recent month
+  if (dashboardData.months.length > 0) {
+    const latest = dashboardData.months[0];
+    currentMonthKey = `${latest.year}-${String(latest.month).padStart(2, '0')}`;
+    document.getElementById('month-select').value = currentMonthKey;
+    updateDashboard();
+  }
+}
+
+function updateCurrentDate() {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  document.getElementById('current-date').textContent = formatter.format(now);
+}
+
+function populateMonthSelect() {
+  const select = document.getElementById('month-select');
+  dashboardData.months.forEach(month => {
+    const option = document.createElement('option');
+    const key = `${month.year}-${String(month.month).padStart(2, '0')}`;
+    option.value = key;
+    option.textContent = `${month.month_name} ${month.year}`;
+    select.appendChild(option);
+  });
+}
+
+function populateVendedorSelect() {
+  const select = document.getElementById('vendedor-select');
+  const vendedores = [...new Set(dashboardData.vendedores)].sort();
+  vendedores.forEach(vendedor => {
+    const option = document.createElement('option');
+    option.value = vendedor;
+    option.textContent = vendedor;
+    select.appendChild(option);
+  });
+}
+
+function updateDashboard() {
+  const monthKey = document.getElementById('month-select').value;
+  filteredVendedor = document.getElementById('vendedor-select').value;
+
+  const [year, month] = monthKey.split('-').map(Number);
+  currentData = dashboardData.months.find(m => m.year === year && m.month === month);
+
+  if (!currentData) {
+    console.error('Month data not found');
+    return;
+  }
+
+  renderKPIs();
+  renderRow2();
+  renderRow3();
+  renderRow4();
+}
+
+// ============================================
+// RENDERERS
+// ============================================
+
+function formatCurrency(num) {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(num);
+}
+
+function formatNumber(num) {
+  return new Intl.NumberFormat('es-MX').format(Math.round(num));
+}
+
+function filterDataByVendedor(data) {
+  if (!filteredVendedor) return data;
+  return data.filter(item => item.name === filteredVendedor);
+}
+
+function getFilteredMetrics() {
+  let metrics = {
+    total_sales: currentData.total_sales,
+    facturas_count: currentData.facturas_count,
+    unique_clientes: currentData.unique_clientes,
+    avg_ticket: currentData.avg_ticket,
+    top_clientes: currentData.top_clientes,
+    vendedores: currentData.vendedores,
+  };
+
+  if (filteredVendedor) {
+    metrics.vendedores = metrics.vendedores.filter(v => v.name === filteredVendedor);
+    metrics.total_sales = metrics.vendedores.reduce((sum, v) => sum + v.amount, 0);
+    metrics.facturas_count = metrics.vendedores.reduce((sum, v) => sum + v.count, 0);
+    metrics.avg_ticket = metrics.facturas_count > 0 ? metrics.total_sales / metrics.facturas_count : 0;
+  }
+
+  return metrics;
+}
+
+function renderKPIs() {
+  const metrics = getFilteredMetrics();
+  const currentMonth = currentData.month;
+  const lastMonthData = dashboardData.months.find(m => {
+    if (currentMonth === 1) return m.year === currentData.year - 1 && m.month === 12;
+    return m.year === currentData.year && m.month === currentMonth - 1;
+  });
+
+  const lastMonthSales = lastMonthData ? lastMonthData.total_sales : metrics.total_sales;
+
+  const html = `
+    <div class="kcard g">
+      <div class="klbl">Ventas del Mes</div>
+      <div class="kval g">${formatCurrency(metrics.total_sales)}</div>
+      <div class="ksub">Facturas emitidas</div>
+      <span class="badge bg-g">📈 ${metrics.total_sales > lastMonthSales ? '↑' : '↓'} vs mes anterior</span>
+    </div>
+
+    <div class="kcard g">
+      <div class="klbl">Trimestre Actual</div>
+      <div class="kval g">${formatCurrency(getQuarterTotal())}</div>
+      <div class="ksub">Acumulado Q${getQuarter(currentData.month)}</div>
+      <span class="badge bg-g">✓ En seguimiento</span>
+    </div>
+
+    <div class="kcard">
+      <div class="klbl">Total de Facturas</div>
+      <div class="kval">${formatNumber(metrics.facturas_count)}</div>
+      <div class="ksub">Documentos emitidos</div>
+      <span class="badge bg-o">📋 ${metrics.facturas_count} del mes</span>
+    </div>
+
+    <div class="kcard">
+      <div class="klbl">Ticket Promedio</div>
+      <div class="kval">${formatCurrency(metrics.avg_ticket)}</div>
+      <div class="ksub">Por factura</div>
+      <span class="badge bg-o">💰 ${(metrics.avg_ticket / (lastMonthData ? lastMonthData.total_sales / lastMonthData.facturas_count : 1) * 100).toFixed(0)}% vs mes ant.</span>
+    </div>
+
+    <div class="kcard g">
+      <div class="klbl">Clientes Activos</div>
+      <div class="kval g">${formatNumber(metrics.unique_clientes)}</div>
+      <div class="ksub">Del mes</div>
+      <span class="badge bg-g">✓ Clientes activos</span>
+    </div>
+  `;
+
+  document.getElementById('kpi-container').innerHTML = html;
+}
+
+function renderRow2() {
+  const metrics = getFilteredMetrics();
+  const daysInMonth = new Date(currentData.year, currentData.month, 0).getDate();
+  const currentDay = new Date().getDate();
+  const daysElapsed = Math.min(currentDay, daysInMonth);
+  const percentDaysElapsed = (daysElapsed / daysInMonth) * 100;
+  const percentSalesElapsed = (metrics.total_sales / (dashboardData.months.find(m =>
+    m.year === currentData.year && m.month === (currentData.month === 1 ? 12 : currentData.month - 1)
+  )?.total_sales || metrics.total_sales)) * 100;
+
+  const gaugeColor = percentSalesElapsed >= 90 ? '#1E6B3C' : percentSalesElapsed >= 70 ? '#E8A000' : '#C00000';
+
+  const html = `
+    <!-- Gauge -->
+    <div class="card">
+      <div class="ctitle">% Avance del Mes</div>
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 160 100">
+          <path d="M20 85 A60 60 0 0 1 140 85" fill="none" stroke="#eee" stroke-width="12" stroke-linecap="round"/>
+          <path d="M20 85 A60 60 0 0 1 ${20 + (percentSalesElapsed / 100) * 120} ${85 - (percentSalesElapsed / 100) * 60}"
+                fill="none" stroke="${gaugeColor}" stroke-width="12" stroke-linecap="round"/>
+          <text x="80" y="90" font-size="18" font-weight="800" text-anchor="middle" fill="#1F3864">${percentSalesElapsed.toFixed(0)}%</text>
+          <text x="8" y="95" font-size="7" fill="#ccc">0%</text>
+          <text x="145" y="95" font-size="7" fill="#ccc">100%</text>
+        </svg>
+        <div class="gauge-sub">Días: ${percentDaysElapsed.toFixed(0)}% | Ventas: ${percentSalesElapsed.toFixed(0)}%</div>
+      </div>
+    </div>
+
+    <!-- Tendencia -->
+    <div class="card">
+      <div class="ctitle">Últimos 6 Meses</div>
+      ${renderTrendChart()}
+    </div>
+
+    <!-- Resumen anual -->
+    <div class="card">
+      <div class="ctitle">Resumen del Año</div>
+      ${renderYearSummary()}
+    </div>
+  `;
+
+  document.getElementById('row2-container').innerHTML = html;
+}
+
+function renderTrendChart() {
+  const lastSixMonths = dashboardData.months.slice(0, 6).reverse();
+
+  if (lastSixMonths.length === 0) return '<div class="loading">Sin datos</div>';
+
+  const maxValue = Math.max(...lastSixMonths.map(m => m.total_sales));
+  const chartHeight = 120;
+  const barWidth = 100 / lastSixMonths.length;
+
+  let svgBars = '';
+  lastSixMonths.forEach((month, idx) => {
+    const barHeight = (month.total_sales / maxValue) * chartHeight;
+    const x = (idx * barWidth) + 2;
+    const y = chartHeight - barHeight;
+    svgBars += `<rect x="${x}%" y="${y}" width="${barWidth - 2}%" height="${barHeight}" fill="#1E6B3C" rx="2"/>`;
+  });
+
+  const svgHTML = `
+    <svg viewBox="0 0 100 ${chartHeight + 20}" style="width: 100%; height: 140px;">
+      <line x1="0" y1="${chartHeight}" x2="100" y2="${chartHeight}" stroke="#e0e0e0" stroke-width="1"/>
+      ${svgBars}
+    </svg>
+  `;
+
+  const labels = lastSixMonths.map((m, i) => `
+    <div style="font-size: 8px; color: #999; text-align: center; flex: 1;">
+      ${m.month_short}
+    </div>
+  `).join('');
+
+  return `${svgHTML}<div style="display: flex; gap: 0;">${labels}</div>`;
+}
+
+function renderYearSummary() {
+  const thisYear = dashboardData.months.filter(m => m.year === currentData.year);
+  const q1 = thisYear.filter(m => m.month <= 3).reduce((sum, m) => sum + m.total_sales, 0);
+  const q2 = thisYear.filter(m => m.month > 3 && m.month <= 6).reduce((sum, m) => sum + m.total_sales, 0);
+  const q3 = thisYear.filter(m => m.month > 6 && m.month <= 9).reduce((sum, m) => sum + m.total_sales, 0);
+  const q4 = thisYear.filter(m => m.month > 9).reduce((sum, m) => sum + m.total_sales, 0);
+
+  return `
+    <div class="srow">
+      <div class="sitem">
+        <div class="sname">Q1</div>
+        <div class="sval">${formatCurrency(q1)}</div>
+      </div>
+      <div class="sitem">
+        <div class="sname">Q2</div>
+        <div class="sval">${formatCurrency(q2)}</div>
+      </div>
+      <div class="sitem">
+        <div class="sname">Q3</div>
+        <div class="sval">${formatCurrency(q3)}</div>
+      </div>
+      <div class="sitem">
+        <div class="sname">Q4</div>
+        <div class="sval">${formatCurrency(q4)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRow3() {
+  const metrics = getFilteredMetrics();
+
+  const html = `
+    <div class="card">
+      <div class="ctitle">Top 10 Clientes del Mes</div>
+      <table class="ctable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Venta</th>
+            <th>% del Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${metrics.top_clientes.map((cliente, idx) => {
+            const pct = (cliente.amount / metrics.total_sales * 100).toFixed(1);
+            const barWidth = Math.min(150, (cliente.amount / metrics.total_sales) * 150);
+            return `
+              <tr>
+                <td style="font-weight: 800; color: #1F3864;">${idx + 1}</td>
+                <td>${cliente.name}</td>
+                <td style="font-weight: 700;">${formatCurrency(cliente.amount)}</td>
+                <td><span class="cbar" style="width: ${barWidth}px;"></span> ${pct}%</td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">Ritmo Necesario</div>
+      ${renderRitmo()}
+    </div>
+  `;
+
+  document.getElementById('row3-container').innerHTML = html;
+}
+
+function renderRitmo() {
+  const daysInMonth = new Date(currentData.year, currentData.month, 0).getDate();
+  const currentDay = new Date().getDate();
+  const daysRemaining = Math.max(0, daysInMonth - currentDay);
+  const metrics = getFilteredMetrics();
+
+  const avgDaily = metrics.total_sales / Math.min(currentDay, daysInMonth);
+  const projectedMonth = avgDaily * daysInMonth;
+
+  return `
+    <div class="ritem g">
+      <div class="rlbl">Promedio diario actual<br><span style="font-size: 8.5px; color: #666;">${Math.min(currentDay, daysInMonth)} días</span></div>
+      <div class="rval">${formatCurrency(avgDaily)}<span style="font-size: 10px; font-weight: 600; color: #888;">/día</span></div>
+    </div>
+    <div class="ritem">
+      <div class="rlbl">Proyección mes completo<br><span style="font-size: 8.5px; color: #666;">A este ritmo</span></div>
+      <div class="rval">${formatCurrency(projectedMonth)}</div>
+    </div>
+  `;
+}
+
+function renderRow4() {
+  const metrics = getFilteredMetrics();
+
+  let vendedoresHTML = '';
+  if (metrics.vendedores.length > 0) {
+    vendedoresHTML = `
+      <table class="ctable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Vendedor</th>
+            <th>Venta</th>
+            <th>Facturas</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${metrics.vendedores.map((vendedor, idx) => `
+            <tr>
+              <td style="font-weight: 800; color: #1F3864;">${idx + 1}</td>
+              <td>${vendedor.name}</td>
+              <td style="font-weight: 700;">${formatCurrency(vendedor.amount)}</td>
+              <td>${vendedor.count}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  const html = `
+    <div class="card">
+      <div class="ctitle">Vendedores del Mes</div>
+      ${vendedoresHTML}
+    </div>
+
+    <div class="card">
+      <div class="ctitle">Distribución Diaria</div>
+      ${renderDailyChart()}
+    </div>
+  `;
+
+  document.getElementById('row4-container').innerHTML = html;
+}
+
+function renderDailyChart() {
+  const dailySales = currentData.daily_sales;
+  if (!dailySales || dailySales.length === 0) return '<div class="loading">Sin datos diarios</div>';
+
+  const maxDaily = Math.max(...dailySales.map(d => d.amount));
+  const chartHeight = 100;
+
+  let svgBars = '';
+  dailySales.forEach((day, idx) => {
+    const barHeight = (day.amount / maxDaily) * chartHeight;
+    const x = (idx * 100 / dailySales.length) + 2;
+    const width = (100 / dailySales.length) - 3;
+    const y = chartHeight - barHeight;
+    svgBars += `<rect x="${x}%" y="${y}" width="${width}%" height="${barHeight}" fill="#1E6B3C" rx="1"/>`;
+  });
+
+  return `
+    <svg viewBox="0 0 100 ${chartHeight + 15}" style="width: 100%; height: 120px;">
+      <line x1="0" y1="${chartHeight}" x2="100" y2="${chartHeight}" stroke="#e0e0e0" stroke-width="1"/>
+      ${svgBars}
+    </svg>
+    <div style="font-size: 8px; color: #999; text-align: center; margin-top: 4px;">
+      ${dailySales.length} días registrados | Max: ${formatCurrency(maxDaily)}
+    </div>
+  `;
+}
+
+function getQuarter(month) {
+  return Math.ceil(month / 3);
+}
+
+function getQuarterTotal() {
+  const q = getQuarter(currentData.month);
+  const startMonth = (q - 1) * 3 + 1;
+  const endMonth = q * 3;
+  return dashboardData.months
+    .filter(m => m.year === currentData.year && m.month >= startMonth && m.month <= endMonth)
+    .reduce((sum, m) => sum + m.total_sales, 0);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initDashboard);
+</script>
+
+</body>
+</html>
