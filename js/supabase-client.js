@@ -1,5 +1,5 @@
 /* ============================================================
-   SUMINREGIO INDUSTRIAL — Supabase Client v1.0
+   SUMINREGIO INDUSTRIAL — Supabase Client v1.1
    Initializes the Supabase client and provides DB helpers
    ============================================================ */
 
@@ -33,6 +33,8 @@ const DB = {
     return data;
   },
 
+  /* ==================== COTIZACIONES ==================== */
+
   /** Save a full quote (header + items) */
   async saveCotizacion({ folio, cliente_nombre, cliente_rfc, vigencia, condiciones, tipo_precio, subtotal, iva, total, items }) {
     const sb = getSb();
@@ -44,9 +46,15 @@ const DB = {
       .from('cotizaciones')
       .insert({
         vendedor_id: user.id,
-        folio, cliente_nombre, cliente_rfc,
-        vigencia, condiciones, tipo_precio,
-        subtotal, iva, total
+        folio: folio,
+        cliente_nombre: cliente_nombre || '',
+        cliente_rfc: cliente_rfc || '',
+        vigencia: vigencia || '15 dias',
+        condiciones: condiciones || 'Contado',
+        tipo_precio: tipo_precio,
+        subtotal: subtotal,
+        iva: iva,
+        total: total
       })
       .select()
       .single();
@@ -55,25 +63,28 @@ const DB = {
 
     // Insert items
     if (items && items.length > 0) {
-      const rows = items.map(it => ({
-        cotizacion_id: cot.id,
-        articulo_id: it.id,
-        nombre: it.nombre,
-        unidad: it.unidad,
-        cantidad: it.qty,
-        precio: it.precio,
-        descuento: it.descuento || 0,
-        importe: it.importe
-      }));
+      const rows = items.map(function(it) {
+        return {
+          cotizacion_id: cot.id,
+          articulo_id: it.id,
+          nombre: it.nombre,
+          unidad: it.unidad,
+          cantidad: it.qty,
+          precio: it.precio,
+          descuento: it.descuento || 0,
+          importe: it.importe
+        };
+      });
       const { error: itemErr } = await sb.from('cotizacion_items').insert(rows);
-      if (itemErr) throw itemErr;
+      if (itemErr) console.error('Error inserting items:', itemErr);
     }
 
     return cot;
   },
 
   /** Get quote history for current user */
-  async getCotizaciones(limit = 50) {
+  async getCotizaciones(limit) {
+    if (!limit) limit = 50;
     const sb = getSb();
     const { data, error } = await sb
       .from('cotizaciones')
@@ -94,5 +105,96 @@ const DB = {
       .order('id');
     if (error) { console.error('getCotizacionItems:', error); return []; }
     return data;
+  },
+
+  /* ==================== LEVANTAMIENTOS ==================== */
+
+  /** Save a single levantamiento record (1 manguera) */
+  async saveLevantamiento(record) {
+    var sb = getSb();
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (!user) throw new Error('No autenticado');
+
+    var row = {
+      vendedor_id: user.id,
+      fecha: record.fecha || '',
+      planta: record.planta || '',
+      subplanta: record.subplanta || '',
+      maquina: record.maquina || '',
+      equipo: record.equipo || '',
+      ubicacion: record.ubicacion || '',
+      diametro: record.diametro || '',
+      sae: record.sae || '',
+      presion: record.presion || '',
+      longitud: record.longitud || '',
+      recubrimiento: record.recubrimiento || '',
+      con_a: record.conA || '',
+      adapt_a: record.adaptA || '',
+      con_b: record.conB || '',
+      adapt_b: record.adaptB || '',
+      comentarios: record.comentarios || '',
+      descripcion: record.descripcion || ''
+    };
+
+    var resp = await sb.from('levantamientos').insert(row).select().single();
+    if (resp.error) throw resp.error;
+    return resp.data;
+  },
+
+  /** Save multiple levantamiento records at once */
+  async saveLevantamientos(recordsArr) {
+    var sb = getSb();
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (!user) throw new Error('No autenticado');
+
+    var rows = recordsArr.map(function(record) {
+      return {
+        vendedor_id: user.id,
+        fecha: record.fecha || '',
+        planta: record.planta || '',
+        subplanta: record.subplanta || '',
+        maquina: record.maquina || '',
+        equipo: record.equipo || '',
+        ubicacion: record.ubicacion || '',
+        diametro: record.diametro || '',
+        sae: record.sae || '',
+        presion: record.presion || '',
+        longitud: record.longitud || '',
+        recubrimiento: record.recubrimiento || '',
+        con_a: record.conA || '',
+        adapt_a: record.adaptA || '',
+        con_b: record.conB || '',
+        adapt_b: record.adaptB || '',
+        comentarios: record.comentarios || '',
+        descripcion: record.descripcion || ''
+      };
+    });
+
+    var resp = await sb.from('levantamientos').insert(rows).select();
+    if (resp.error) throw resp.error;
+    return resp.data;
+  },
+
+  /** Get levantamiento history for current user */
+  async getLevantamientos(limit) {
+    if (!limit) limit = 200;
+    var sb = getSb();
+    var resp = await sb
+      .from('levantamientos')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (resp.error) { console.error('getLevantamientos:', resp.error); return []; }
+    return resp.data;
+  },
+
+  /** Delete a levantamiento by ID */
+  async deleteLevantamiento(id) {
+    var sb = getSb();
+    var resp = await sb.from('levantamientos').delete().eq('id', id);
+    if (resp.error) throw resp.error;
+    return true;
   }
 };

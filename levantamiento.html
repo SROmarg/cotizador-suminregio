@@ -688,6 +688,7 @@ function saveKey(){
 
 function load(){try{const s=localStorage.getItem(STOR);if(s){records=JSON.parse(s);render();}}catch(e){}}
 function save(){try{localStorage.setItem(STOR,JSON.stringify(records));const el=document.getElementById('sp');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000);}catch(e){}}
+function syncRecordToSupabase(r){if(typeof DB==='undefined'||!DB.saveLevantamiento)return;DB.saveLevantamiento(r).then(function(saved){console.log('Levantamiento synced:',saved.id);}).catch(function(err){console.warn('Sync levantamiento error:',err);});}
 const g=id=>document.getElementById(id)?.value.trim()||'';
 const gU=id=>g(id).toUpperCase();
 
@@ -960,7 +961,7 @@ function saveRev(){
     const d=rv(`r${n}_diametro`),s=rv(`r${n}_sae`),p=rv(`r${n}_presion`),l=rv(`r${n}_longitud`),cA=rvU(`r${n}_conA`),cB=rvU(`r${n}_conB`);
     if(!d||!s||!p||!l||!cA||!cB)continue;
     const r={id:Date.now()+n,fecha:new Date().toLocaleDateString('es-MX'),...gen,ubicacion:rvU(`r${n}_ubicacion`),diametro:d,sae:s,presion:p,longitud:l,recubrimiento:rvU(`r${n}_recubrimiento`),conA:cA,adaptA:rvU(`r${n}_adaptA`),conB:cB,adaptB:rvU(`r${n}_adaptB`),comentarios:rv(`r${n}_comentarios`)};
-    r.descripcion=desc(r);records.push(r);saved++;
+    r.descripcion=desc(r);records.push(r);saved++;syncRecordToSupabase(r);
   }
   if(!saved){toast('Completa al menos una manguera con los campos requeridos','warn');return;}
   save();render();toast(`✓ ${saved} registro${saved>1?'s':''} guardados`,'ok');scanCount++;
@@ -972,7 +973,7 @@ function addEntry(){
   const d=g('diametro'),s=g('sae'),p=g('presion'),l=g('longitud'),cA=gU('conA'),cB=gU('conB');
   if(!d||!s||!p||!l||!cA||!cB){toast('Completa: Diámetro, SAE, Presión, Longitud, Conector A y B','warn');return;}
   const r={id:Date.now(),fecha:new Date().toLocaleDateString('es-MX'),planta:gU('planta'),subplanta:gU('subplanta'),maquina:gU('maquina'),equipo:gU('equipo'),ubicacion:gU('ubicacion'),diametro:d,sae:s,presion:p,longitud:l,recubrimiento:g('recubrimiento').toUpperCase(),conA:cA,adaptA:gU('adaptA'),conB:cB,adaptB:gU('adaptB'),comentarios:g('comentarios')};
-  r.descripcion=desc(r);records.push(r);save();render();clearForm();toast('✓ Registro guardado','ok');
+  r.descripcion=desc(r);records.push(r);save();render();clearForm();toast('✓ Registro guardado','ok');syncRecordToSupabase(r);
 }
 
 function toggleForm(){
@@ -996,7 +997,7 @@ function addEntryMobile(){
     ubicacion:gmU('m_ubicacion'),diametro:d,sae:s,presion:p,longitud:l,
     recubrimiento:gm('m_recubrimiento').toUpperCase(),conA:cA,adaptA:gmU('m_adaptA'),conB:cB,adaptB:gmU('m_adaptB'),
     comentarios:gm('m_comentarios')};
-  r.descripcion=desc(r);records.push(r);save();render();
+  r.descripcion=desc(r);records.push(r);save();render();syncRecordToSupabase(r);
   document.getElementById('manualMobOv').style.display='none';
   toast('✓ Registro guardado','ok');
 }

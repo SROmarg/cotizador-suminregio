@@ -641,8 +641,28 @@ function generateQuote() {
   document.getElementById('qTotal').textContent = fmt(tot);
   document.getElementById('quoteWords').textContent = numToWords(tot);
 
-  /* Save to quote history */
+  /* Save to quote history (localStorage) */
   Storage.addQuote({ id: document.getElementById('quoteNum').textContent, cliente: document.getElementById('qClientName').value, items: cart, total: tot });
+
+  /* Save to Supabase (async, non-blocking) */
+  var sbItems = cart.map(function(item) {
+    var pr = item.precios[pt] || Object.values(item.precios)[0] || 0;
+    return { id: item.id, nombre: item.nombre, unidad: item.unidad, qty: item.qty, precio: pr, descuento: 0, importe: Math.round(pr * item.qty * 100) / 100 };
+  });
+  DB.saveCotizacion({
+    folio: document.getElementById('quoteNum').textContent,
+    cliente_nombre: document.getElementById('qClientName').value,
+    cliente_rfc: document.getElementById('qClientRFC').value,
+    vigencia: document.getElementById('qVigencia').value,
+    condiciones: document.getElementById('qCondiciones').value,
+    tipo_precio: tiposPrecio[pt] || pt,
+    subtotal: sub, iva: iva, total: tot,
+    items: sbItems
+  }).then(function() {
+    console.log('Cotizacion guardada en Supabase');
+  }).catch(function(err) {
+    console.warn('Error guardando cotizacion en Supabase:', err);
+  });
 
   document.getElementById('quoteModal').classList.add('show');
   document.body.style.overflow = 'hidden';
