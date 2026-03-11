@@ -174,21 +174,7 @@ mark { background: var(--y-bg2); padding: 1px 3px; border-radius: 3px; color: va
 .equiv-add { background: var(--y); color: var(--bk); border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background var(--transition); }
 .equiv-add:hover { background: var(--y2); }
 
-/* ===== LOGIN SCREEN (dark) ===== */
-.login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bk); padding: 20px; }
-.login-box { background: var(--dk2); border: 1px solid var(--br); border-radius: var(--radius-lg); padding: 40px 32px; width: 360px; max-width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-.login-logo { width: 56px; height: 56px; background: var(--y); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--fc); font-weight: 800; font-size: 28px; color: var(--bk); margin-bottom: 16px; }
-.login-title { font-family: var(--fc); font-size: 22px; font-weight: 800; color: var(--w); margin-bottom: 4px; letter-spacing: 0.3px; }
-.login-subtitle { font-size: 13px; color: var(--tx2); margin-bottom: 28px; }
-.login-input { width: 100%; padding: 14px 16px; border: 2px solid var(--br2); border-radius: var(--radius); font-size: 16px; font-family: var(--fn); outline: none; text-align: center; background: var(--dk3); color: var(--tx); transition: border-color var(--transition); }
-.login-input::placeholder { color: var(--mu); }
-.login-input:focus { border-color: var(--y); }
-.login-input.error { border-color: var(--rd); animation: shake 0.4s ease; }
-@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
-.login-btn { width: 100%; padding: 14px; margin-top: 12px; background: var(--y); color: var(--bk); border: none; border-radius: var(--radius); font-size: 16px; font-weight: 700; font-family: var(--fn); cursor: pointer; transition: all var(--transition); }
-.login-btn:hover { background: var(--y2); }
-.login-error { color: var(--rd); font-size: 13px; margin-top: 10px; display: none; }
-.app-content { display: none; }
+/* (login screen removed — now uses login.html) */
 
 /* ===== PRINT ===== */
 @media print {
@@ -252,22 +238,8 @@ mark { background: var(--y-bg2); padding: 1px 3px; border-radius: 3px; color: va
   </div>
 </nav>
 
-<!-- ===== LOGIN ===== -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-box">
-    <div class="login-logo">S</div>
-    <div class="login-title">SUMINREGIO Industrial</div>
-    <div class="login-subtitle">Cotizador — Acceso para vendedores</div>
-    <form onsubmit="return doLogin()">
-      <input type="password" class="login-input" id="loginPass" placeholder="Contraseña" autocomplete="off" autofocus>
-      <button type="submit" class="login-btn">Entrar</button>
-    </form>
-    <div class="login-error" id="loginError">Contraseña incorrecta</div>
-  </div>
-</div>
-
-<!-- ===== APP (hidden until login) ===== -->
-<div class="app-content" id="appContent">
+<!-- ===== APP ===== -->
+<div id="appContent">
 
 <!-- ===== HEADER ===== -->
 <header class="header">
@@ -376,6 +348,13 @@ mark { background: var(--y-bg2); padding: 1px 3px; border-radius: 3px; color: va
     </div>
   </div>
 </div>
+
+<!-- ===== SUPABASE + AUTH ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/auth-guard.js"></script>
+<script>Auth.init();</script>
 
 <!-- ===== SHARED UTILITIES ===== -->
 <script src="js/utils.js"></script>
@@ -680,28 +659,9 @@ document.getElementById('searchInput').addEventListener('input', () => { clearTi
 document.getElementById('priceType').addEventListener('change', () => { if (currentResults.length > 0) doSearch(); });
 document.getElementById('lineaFilter').addEventListener('change', () => { if (document.getElementById('searchInput').value.trim().length >= 2) doSearch(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeQuote(); if (document.getElementById('sidebar').classList.contains('show')) toggleSidebar(); } });
+
+/* ===== INIT: load product data ===== */
 window.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem('suminregio_auth') === '1') {
-    showApp();
-  }
-});
-
-function doLogin() {
-  const pass = document.getElementById('loginPass').value;
-  if (pass === atob('c3VtaW5yZWdpbzIwMjY=')) {
-    sessionStorage.setItem('suminregio_auth', '1');
-    showApp();
-  } else {
-    document.getElementById('loginPass').classList.add('error');
-    document.getElementById('loginError').style.display = 'block';
-    setTimeout(() => { document.getElementById('loginPass').classList.remove('error'); }, 500);
-  }
-  return false;
-}
-
-function showApp() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('appContent').style.display = 'block';
   const s = document.createElement('script');
   s.src = 'datos.js';
   s.onload = function() {
@@ -712,8 +672,17 @@ function showApp() {
     document.head.appendChild(eq);
   };
   document.head.appendChild(s);
-}
+
+  // Pre-fill vendedor name in quote if available
+  Auth.onReady(function() {
+    const v = Auth.getVendedor();
+    if (v) {
+      const qv = document.getElementById('qVendedor');
+      if (qv && !qv.value) qv.value = v.nombre;
+    }
+  });
+});
 </script>
-</div><!-- /app-content -->
+</div><!-- /appContent -->
 </body>
 </html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080808">
+<title>Iniciar Sesión — Suminregio Industrial</title>
+<link rel="stylesheet" href="css/design-system.css">
+<style>
+.login-wrap {
+  min-height: calc(100vh - 48px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-box {
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+.login-logo {
+  width: 64px; height: 64px;
+  background: var(--y);
+  color: var(--bk);
+  font-family: var(--fc);
+  font-weight: 800;
+  font-size: 32px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 24px rgba(245,197,24,0.2);
+}
+.login-title {
+  font-family: var(--fc);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--w);
+  letter-spacing: 0.5px;
+}
+.login-subtitle {
+  font-size: 13px;
+  color: var(--tx2);
+  margin-top: 4px;
+  margin-bottom: 32px;
+}
+.form-group {
+  margin-bottom: 16px;
+  text-align: left;
+}
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx2);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--br2);
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-family: var(--fn);
+  background: var(--dk2);
+  color: var(--tx);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.form-input::placeholder { color: var(--mu); }
+.form-input:focus { border-color: var(--y); background: var(--dk3); }
+.form-input.error { border-color: var(--rd); animation: shake 0.3s ease; }
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--y);
+  color: var(--bk);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--fn);
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-top: 8px;
+}
+.login-btn:hover { background: var(--y2); }
+.login-btn:active { transform: scale(0.98); }
+.login-btn:disabled { opacity: 0.5; cursor: wait; }
+.login-error {
+  display: none;
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: var(--rd-bg);
+  color: var(--rd);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+}
+.login-error.show { display: block; }
+.login-footer {
+  margin-top: 32px;
+  font-size: 11px;
+  color: var(--mu);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+@media (max-width: 480px) {
+  .login-box { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<nav class="platform-nav">
+  <a href="login.html" class="pn-logo">SR</a>
+  <a href="login.html" class="pn-brand">SUMINREGIO <span>INDUSTRIAL</span></a>
+</nav>
+
+<div class="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">S</div>
+    <div class="login-title">SUMINREGIO Industrial</div>
+    <div class="login-subtitle">Plataforma de herramientas — Acceso vendedores</div>
+
+    <form id="loginForm" onsubmit="return handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label" for="loginEmail">Correo electrónico</label>
+        <input type="email" class="form-input" id="loginEmail" placeholder="tu@correo.com" autocomplete="email" required autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginPass">Contraseña</label>
+        <input type="password" class="form-input" id="loginPass" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
+    </form>
+
+    <div class="login-error" id="loginError"></div>
+
+    <div class="login-footer">
+      Suminregio Parker de Monterrey S.A. de C.V.
+    </div>
+  </div>
+</div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+// If already logged in, redirect to index
+Auth.onReady(function() {
+  if (Auth.isLoggedIn()) {
+    const redirect = sessionStorage.getItem('suminregio_redirect') || 'index.html';
+    sessionStorage.removeItem('suminregio_redirect');
+    window.location.replace(redirect);
+  }
+});
+Auth.init();
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginError');
+
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+  errEl.classList.remove('show');
+
+  try {
+    await Auth.login(email, pass);
+    const redirect = sessionStorage.getItem('suminregio_redirect') || 'index.html';
+    sessionStorage.removeItem('suminregio_redirect');
+    window.location.replace(redirect);
+  } catch (err) {
+    console.error('Login error:', err);
+    let msg = 'Error al iniciar sesión';
+    if (err.message && err.message.includes('Invalid login')) {
+      msg = 'Correo o contraseña incorrectos';
+    } else if (err.message && err.message.includes('Email not confirmed')) {
+      msg = 'Confirma tu correo electrónico primero';
+    }
+    errEl.textContent = msg;
+    errEl.classList.add('show');
+    document.getElementById('loginPass').classList.add('error');
+    setTimeout(() => document.getElementById('loginPass').classList.remove('error'), 500);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  }
+  return false;
+}
+</script>
+
+</body>
+</html>
