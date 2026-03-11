@@ -33,6 +33,14 @@ const Auth = {
     sb.auth.onAuthStateChange(function(event, session) {
       if (event === 'SIGNED_OUT') {
         Auth._vendedor = null;
+        // Redirigir a login si estamos en página protegida
+        if (window.location.pathname.indexOf('login.html') === -1) {
+          window.location.replace('login.html');
+        }
+      } else if (event === 'TOKEN_REFRESHED' && session) {
+        Auth._loadVendedor();
+      } else if (event === 'USER_UPDATED' && session) {
+        Auth._loadVendedor();
       }
     });
   },
@@ -51,6 +59,7 @@ const Auth = {
     const sb = getSb();
     await sb.auth.signOut();
     Auth._vendedor = null;
+    sessionStorage.removeItem('suminregio_redirect');
     window.location.href = 'login.html';
   },
 

@@ -159,6 +159,8 @@
 /* ===== MISC ===== */
 .loading-state, .empty-state, .no-results-state { text-align: center; padding: 80px 20px; color: var(--mu); grid-column: 1 / -1; }
 mark { background: var(--y-bg2); padding: 1px 3px; border-radius: 3px; color: var(--y); }
+.skip-link { position: absolute; top: -40px; left: 0; background: var(--y); color: var(--bk); padding: 8px 16px; text-decoration: none; z-index: 1000; border-radius: var(--radius); }
+.skip-link:focus { top: 0; }
 
 /* ===== EQUIVALENCIAS (dark) ===== */
 .equiv-btn { display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px dashed var(--y); color: var(--y); padding: 5px 10px; border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: all var(--transition); font-family: var(--fn); }
@@ -227,6 +229,9 @@ mark { background: var(--y-bg2); padding: 1px 3px; border-radius: 3px; color: va
 </head>
 <body>
 
+<!-- ===== SKIP LINK ===== -->
+<a href="#main-content" class="skip-link">Saltar al contenido</a>
+
 <!-- ===== PLATFORM NAV ===== -->
 <nav class="platform-nav">
   <a href="index.html" class="pn-logo">SR</a>
@@ -246,10 +251,10 @@ mark { background: var(--y-bg2); padding: 1px 3px; border-radius: 3px; color: va
   <div class="header-top">
     <a class="logo" href="#">
       <div class="logo-icon">S</div>
-      <div>
+      <h1>
         <div class="logo-text">SUMINREGIO<span> Industrial</span></div>
         <div class="logo-sub">Cotizador</div>
-      </div>
+      </h1>
     </a>
     <button class="cart-btn" onclick="toggleSidebar()" aria-label="Ver cotización">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 22a1 1 0 100-2 1 1 0 000 2zM20 22a1 1 0 100-2 1 1 0 000 2z"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
@@ -272,15 +277,15 @@ mark { background: var(--y-bg2); padding: 1px 3px; border-radius: 3px; color: va
 </header>
 
 <!-- ===== RESULTS ===== -->
-<main class="content">
+<main class="content" id="main-content">
   <div class="results" id="results"><div class="loading-state" id="loading"><div class="spinner"></div>Cargando catálogo...</div></div>
   <div class="pagination" id="pagination"></div>
 </main>
 
 <!-- ===== SIDEBAR ===== -->
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-<div class="sidebar" id="sidebar" role="dialog" aria-label="Cotización">
-  <div class="sidebar-header"><h2>Mi Cotización</h2><button class="sidebar-close" onclick="toggleSidebar()" aria-label="Cerrar">&times;</button></div>
+<div class="sidebar" id="sidebar" role="dialog" aria-modal="true" aria-label="Carrito de cotización">
+  <div class="sidebar-header"><h2>Mi Cotización</h2><button class="sidebar-close" onclick="toggleSidebar()" aria-label="Cerrar carrito">&times;</button></div>
   <div class="price-selector"><label>Tipo de precio</label><select id="quotePriceType" onchange="updateSidebar()"></select></div>
   <div class="sidebar-items" id="sidebarItems"><div class="sidebar-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M9 22a1 1 0 100-2 1 1 0 000 2zM20 22a1 1 0 100-2 1 1 0 000 2z"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg><p>Agrega productos desde el buscador</p></div></div>
   <div class="sidebar-footer" id="sidebarFooter" style="display:none;">
@@ -293,14 +298,14 @@ mark { background: var(--y-bg2); padding: 1px 3px; border-radius: 3px; color: va
 </div>
 
 <!-- ===== QUOTE MODAL (PDF format) ===== -->
-<div class="modal" id="quoteModal">
+<div class="modal" id="quoteModal" role="dialog" aria-modal="true" aria-labelledby="quoteTitle">
   <div class="modal-content">
     <div class="q-doc" id="quoteDoc">
       <div class="q-top">
         <div class="q-top-left">
           <div class="q-company">SUMINREGIO PARKER DE MONTERREY S.A. DE C.V.</div>
           <div class="q-rfc">RFC: SUM1906278Q5</div>
-          <div class="q-title">Cotización</div>
+          <div class="q-title" id="quoteTitle">Cotización</div>
         </div>
         <div class="q-top-right">
           <table><tr><th>Fecha</th><th>Folio</th></tr><tr><td id="quoteDate"></td><td id="quoteNum"></td></tr></table>
@@ -364,6 +369,7 @@ mark { background: var(--y-bg2); padding: 1px 3px; border-radius: 3px; color: va
 let productos = [], tiposPrecio = {}, lineasMap = {}, cart = [], currentResults = [], currentPage = 1;
 let equivMarcas = {}, equivGrupos = {}, equivArtGrupo = {}, prodIndex = {};
 const PAGE_SIZE = 20;
+const IVA_RATE = 0.16;
 let searchTimeout = null;
 
 /* ===== LOAD DATA ===== */
@@ -484,7 +490,7 @@ function renderResults() {
       '<div class="card-tags">' + (lineasMap[p.l] ? '<span class="tag tag-linea">' + lineasMap[p.l] + '</span>' : '') + '<span class="tag tag-unit">' + p.u + '</span><span class="tag ' + sc + '">' + st + '</span>' + (ic ? '<span class="tag tag-incart">En cotización</span>' : '') + '</div>' +
       '<div class="card-price-row"><span class="card-price">' + fmt(price) + '</span><span class="card-price-iva">+ IVA</span></div>' +
       (op ? '<button class="card-prices-toggle" onclick="this.nextElementSibling.classList.toggle(\'show\')">Ver otros precios &#9662;</button><div class="card-prices-list">' + op + '</div>' : '') +
-      '<div class="card-actions"><input type="number" class="qty-input" id="qty_' + p.id + '" value="' + (ic ? ic.qty : 1) + '" min="1" step="1">' +
+      '<div class="card-actions"><input type="number" class="qty-input" id="qty_' + p.id + '" value="' + (ic ? ic.qty : 1) + '" min="1" step="1" aria-label="Cantidad">' +
       '<button class="btn-add' + (ic ? ' in-cart' : '') + '" onclick="addToCart(\'' + p.id + '\')">' + (ic ? 'Actualizar' : 'Agregar') + '</button></div>' +
       getEquivBtn(p.id) +
       '<div class="equiv-panel" id="equiv_' + p.id + '">' + getEquivPanel(p.id) + '</div>' +
@@ -548,7 +554,8 @@ function addToCart(id) {
   const p = prodIndex[id] || productos.find(x => x.id === id);
   if (!p) return;
   const qtyEl = document.getElementById('qty_' + id);
-  const qty = qtyEl ? (parseFloat(qtyEl.value) || 1) : 1;
+  let qty = qtyEl ? (parseFloat(qtyEl.value) || 1) : 1;
+  if (qty <= 0 || isNaN(qty)) qty = 1;
   const ex = cart.find(c => c.id === id);
   if (ex) {
     ex.qty = qty;
@@ -608,9 +615,9 @@ function updateSidebar() {
     const pr = item.precios[pt] || Object.values(item.precios)[0] || 0;
     const s = Math.round(pr * item.qty * 100) / 100;
     sub += s;
-    return '<div class="sidebar-item"><div class="sidebar-item-info"><div class="sidebar-item-name">' + item.nombre + '</div><div class="sidebar-item-detail">' + fmt(pr) + ' x ' + item.qty + ' ' + item.unidad + '</div></div><div class="sidebar-item-controls"><input type="number" class="sidebar-qty" value="' + item.qty + '" min="1" onchange="updateCartQty(\'' + item.id + '\',this.value)"><button class="remove-btn" onclick="removeFromCart(\'' + item.id + '\')" title="Eliminar">&#10005;</button></div><div class="sidebar-item-subtotal">' + fmt(s) + '</div></div>';
+    return '<div class="sidebar-item"><div class="sidebar-item-info"><div class="sidebar-item-name">' + item.nombre + '</div><div class="sidebar-item-detail">' + fmt(pr) + ' x ' + item.qty + ' ' + item.unidad + '</div></div><div class="sidebar-item-controls"><input type="number" class="sidebar-qty" value="' + item.qty + '" min="1" aria-label="Cantidad de ' + item.nombre + '" onchange="updateCartQty(\'' + item.id + '\',this.value)"><button class="remove-btn" onclick="removeFromCart(\'' + item.id + '\')" aria-label="Eliminar ' + item.nombre + '">&#10005;</button></div><div class="sidebar-item-subtotal">' + fmt(s) + '</div></div>';
   }).join('');
-  const iva = Math.round(sub * 16) / 100, tot = Math.round((sub + iva) * 100) / 100;
+  const iva = Math.round(sub * IVA_RATE * 100) / 100, tot = Math.round((sub + iva) * 100) / 100;
   document.getElementById('sidebarSubtotal').textContent = fmt(sub);
   document.getElementById('sidebarIVA').textContent = fmt(iva);
   document.getElementById('sidebarTotal').textContent = fmt(tot);
@@ -634,7 +641,7 @@ function generateQuote() {
     return '<tr><td class="c">' + item.id + '</td><td>' + item.nombre + '</td><td class="c">' + item.unidad + '</td><td class="c">' + item.qty + '</td><td class="r">' + fmt(pr) + '</td><td class="c">0%</td><td class="r">' + fmt(imp) + '</td></tr>';
   }).join('');
 
-  const iva = Math.round(sub * 16) / 100;
+  const iva = Math.round(sub * IVA_RATE * 100) / 100;
   const tot = Math.round((sub + iva) * 100) / 100;
   document.getElementById('qSubtotal').textContent = fmt(sub);
   document.getElementById('qIVA').textContent = fmt(iva);
@@ -662,6 +669,7 @@ function generateQuote() {
     console.log('Cotizacion guardada en Supabase');
   }).catch(function(err) {
     console.warn('Error guardando cotizacion en Supabase:', err);
+    if (typeof showToast === 'function') showToast('Error sincronizando con la nube. Tu cotización se guardó localmente.', 'error', 5000);
   });
 
   document.getElementById('quoteModal').classList.add('show');

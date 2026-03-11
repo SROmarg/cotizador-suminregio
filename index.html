@@ -32,6 +32,9 @@ main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
 .stat-val { font-family: var(--fc); font-size: 24px; font-weight: 800; color: var(--y); }
 .stat-label { font-size: 10px; color: var(--mu); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
 
+.skip-link { position: absolute; top: -40px; left: 0; background: var(--y); color: var(--dk); padding: 8px 16px; text-decoration: none; z-index: 100; }
+.skip-link:focus { top: 0; }
+
 @media (max-width: 600px) {
   main { padding: 24px 14px; }
   .modules { grid-template-columns: 1fr; }
@@ -40,6 +43,8 @@ main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
 </style>
 </head>
 <body>
+
+<a href="#main-content" class="skip-link">Saltar al contenido</a>
 
 <nav class="platform-nav">
   <a href="index.html" class="pn-logo">SR</a>
@@ -51,39 +56,39 @@ main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
   </div>
 </nav>
 
-<main>
+<main id="main-content">
   <div class="hero">
-    <div class="hero-title">PLATAFORMA <span>SUMINREGIO</span></div>
-    <div class="hero-sub">Herramientas industriales para tu equipo de ventas</div>
+    <h1 class="hero-title">PLATAFORMA <span>SUMINREGIO</span></h1>
+    <p class="hero-sub">Herramientas industriales para tu equipo de ventas</p>
   </div>
 
   <div class="modules">
     <a href="cotizador.html" class="mod">
       <div class="mod-tag live">Activo</div>
-      <div class="mod-icon">📋</div>
-      <div class="mod-title">COTIZADOR</div>
+      <div class="mod-icon" aria-hidden="true">📋</div>
+      <h2 class="mod-title">COTIZADOR</h2>
       <div class="mod-desc">Busca entre 68,000+ productos por nombre, clave o descripción técnica. Genera cotizaciones con precios actualizados y cross-reference entre marcas.</div>
       <div class="mod-arrow">→</div>
     </a>
 
     <a href="levantamiento.html" class="mod">
       <div class="mod-tag live">Activo</div>
-      <div class="mod-icon">📷</div>
-      <div class="mod-title">LEVANTAMIENTO</div>
+      <div class="mod-icon" aria-hidden="true">📷</div>
+      <h2 class="mod-title">LEVANTAMIENTO</h2>
       <div class="mod-desc">Toma fotos de formatos de mangueras. La IA extrae las specs automáticamente y sugiere productos del catálogo. Envía directo al cotizador.</div>
       <div class="mod-arrow">→</div>
     </a>
 
-    <a href="#" class="mod" style="opacity:0.5;cursor:default;" onclick="return false;">
+    <div class="mod" style="opacity:0.5;cursor:default;" aria-disabled="true">
       <div class="mod-tag soon">Próximamente</div>
-      <div class="mod-icon">🤖</div>
-      <div class="mod-title">ASISTENTE IA</div>
+      <div class="mod-icon" aria-hidden="true">🤖</div>
+      <h2 class="mod-title">ASISTENTE IA</h2>
       <div class="mod-desc">Tu Claude-Suminregio conectado a tus bases de datos. Pregunta sobre ventas, inventario, comisiones, clientes y productos en lenguaje natural.</div>
       <div class="mod-arrow">→</div>
-    </a>
+    </div>
   </div>
 
-  <div class="section-title">Plataforma</div>
+  <h2 class="section-title">Plataforma</h2>
   <div class="stats">
     <div class="stat"><div class="stat-val">68,801</div><div class="stat-label">Productos</div></div>
     <div class="stat"><div class="stat-val">9,797</div><div class="stat-label">Con descripción Shopify</div></div>

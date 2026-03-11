@@ -17,6 +17,8 @@ function showToast(message, type = 'success', duration = 3000) {
   const toast = document.createElement('div');
   toast.className = 'toast toast-' + type;
   toast.textContent = message;
+  toast.setAttribute('role', 'status');
+  toast.setAttribute('aria-live', 'polite');
   document.body.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, duration);
 }
@@ -48,17 +50,24 @@ const Storage = {
   }
 };
 
+/* ===== HTML ESCAPE HELPER ===== */
+function escHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 /* ===== SEARCH HIGHLIGHT ===== */
 function hlMatch(text, query) {
-  if (!query) return text;
-  let result = text;
-  query.split(/\s+/).filter(w => w.length > 0).forEach(w => {
-    result = result.replace(
+  if (!query) return escHtml(text);
+  var safe = escHtml(text);
+  query.split(/\s+/).filter(function(w) { return w.length > 0; }).forEach(function(w) {
+    safe = safe.replace(
       new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'),
       '<mark>$1</mark>'
     );
   });
-  return result;
+  return safe;
 }
 
 /* ===== NUMBER TO WORDS (Spanish) ===== */

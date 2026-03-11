@@ -41,14 +41,23 @@ const DB = {
     const { data: { user } } = await sb.auth.getUser();
     if (!user) throw new Error('No autenticado');
 
+    // Validaciones antes del insert
+    if (!folio || folio.trim() === '') throw new Error('Folio requerido');
+    if (!items || items.length === 0) throw new Error('Agregar al menos 1 item');
+    if (subtotal < 0 || iva < 0 || total < 0) throw new Error('Montos no pueden ser negativos');
+
+    // Sanitizar cliente_nombre y cliente_rfc
+    const sanitizedClienteNombre = cliente_nombre ? cliente_nombre.trim() : '';
+    const sanitizedClienteRfc = cliente_rfc ? cliente_rfc.trim() : '';
+
     // Insert quote header
     const { data: cot, error: cotErr } = await sb
       .from('cotizaciones')
       .insert({
         vendedor_id: user.id,
-        folio: folio,
-        cliente_nombre: cliente_nombre || '',
-        cliente_rfc: cliente_rfc || '',
+        folio: folio.trim(),
+        cliente_nombre: sanitizedClienteNombre,
+        cliente_rfc: sanitizedClienteRfc,
         vigencia: vigencia || '15 dias',
         condiciones: condiciones || 'Contado',
         tipo_precio: tipo_precio,
@@ -91,7 +100,10 @@ const DB = {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
-    if (error) { console.error('getCotizaciones:', error); return []; }
+    if (error) {
+      console.error('getCotizaciones:', error);
+      return { data: [], error: error.message };
+    }
     return data;
   },
 
@@ -115,6 +127,13 @@ const DB = {
     var result = await sb.auth.getUser();
     var user = result.data.user;
     if (!user) throw new Error('No autenticado');
+
+    // Validar que al menos planta o maquina tengan valor
+    var hasPlanta = record.planta && record.planta.toString().trim() !== '';
+    var hasMaquina = record.maquina && record.maquina.toString().trim() !== '';
+    if (!hasPlanta && !hasMaquina) {
+      throw new Error('Debe especificar al menos Planta o Máquina');
+    }
 
     var row = {
       vendedor_id: user.id,
@@ -186,7 +205,10 @@ const DB = {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
-    if (resp.error) { console.error('getLevantamientos:', resp.error); return []; }
+    if (resp.error) {
+      console.error('getLevantamientos:', resp.error);
+      return { data: [], error: resp.error.message };
+    }
     return resp.data;
   },
 

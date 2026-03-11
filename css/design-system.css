@@ -23,8 +23,8 @@
   /* Text */
   --w: #fff;
   --tx: #e2e2e2;
-  --tx2: #a8a8a8;
-  --mu: #666;
+  --tx2: #b0b0b0;
+  --mu: #888;
 
   /* Status */
   --gn: #22c55e;
@@ -127,6 +127,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 44px;
 }
 .btn-primary { background: var(--y); color: var(--bk); }
 .btn-primary:hover { background: var(--y2); }
@@ -251,6 +252,7 @@ body {
   color: var(--tx);
   outline: none;
   transition: border-color var(--transition);
+  min-height: 44px;
 }
 .input::placeholder { color: var(--mu); }
 .input:focus { border-color: var(--y); }
@@ -271,6 +273,7 @@ body {
   background-repeat: no-repeat;
   background-position: right 14px center;
   padding-right: 36px;
+  min-height: 44px;
 }
 .select:focus { border-color: var(--y); }
 
@@ -335,4 +338,78 @@ body {
 }
 @media (max-width: 480px) {
   .pn-brand { display: none; }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+/* Focus visible outline for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--y);
+  outline-offset: 2px;
+}
+
+/* Skip link - visually hidden by default, visible on focus */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--y);
+  color: var(--bk);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  z-index: 1000;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ===== HAMBURGER MENU (RESPONSIVE NAV) ===== */
+.pn-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--w);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile navigation: max-width 600px */
+@media (max-width: 600px) {
+  .pn-hamburger {
+    display: flex;
+  }
+
+  .pn-links {
+    display: none;
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+    background: var(--bk);
+    flex-direction: column;
+    border-bottom: 1px solid var(--br);
+    z-index: 50;
+  }
+
+  .pn-links.open {
+    display: flex;
+  }
+
+  .pn-link {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--br);
+  }
+
+  .pn-user {
+    display: none;
+  }
 }
